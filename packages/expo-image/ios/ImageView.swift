@@ -348,7 +348,7 @@ public final class ImageView: ExpoView {
       let options = transition.toAnimationOptions()
       let seconds = transition.duration / 1000
         
-        UIView.transition(with: sdImageView, duration: seconds, options: options) { [weak self] in
+      UIView.transition(with: sdImageView, duration: seconds, options: options) { [weak self] in
         if let self = self {
           self.setImage(image, contentFit: self.contentFit)
         }
