@@ -37,7 +37,9 @@ public final class ImageView: ExpoView {
 
   var blurRadius: CGFloat = 0.0
 
-  var imageTintColor: UIColor = .clear
+  var imageTintColor: UIColor?
+
+  var sfSymbol: String?
 
   var cachePolicy: ImageCachePolicy = .disk
 
@@ -100,6 +102,16 @@ public final class ImageView: ExpoView {
   // MARK: - Implementation
 
   func reload() {
+    // If an SFSymbol is provided, use it instead of the image source.
+    if let sfSymbol = sfSymbol {
+      let sfSymbolImage = UIImage(systemName: sfSymbol)
+      DispatchQueue.main.async {
+        self.sdImageView.tintColor = self.imageTintColor ?? .systemBlue
+        self.renderImage(sfSymbolImage)
+      }
+      return
+    }
+
     if isViewEmpty {
       displayPlaceholderIfNecessary()
     }
@@ -305,7 +317,7 @@ public final class ImageView: ExpoView {
   private func createTransformPipeline() -> SDImagePipelineTransformer {
     let transformers: [SDImageTransformer] = [
       SDImageBlurTransformer(radius: blurRadius),
-      SDImageTintTransformer(color: imageTintColor)
+      SDImageTintTransformer(color: imageTintColor ?? .clear)
     ]
     return SDImagePipelineTransformer(transformers: transformers)
   }
@@ -335,8 +347,8 @@ public final class ImageView: ExpoView {
     if let transition = transition, transition.duration > 0 {
       let options = transition.toAnimationOptions()
       let seconds = transition.duration / 1000
-
-      UIView.transition(with: sdImageView, duration: seconds, options: options) { [weak self] in
+        
+        UIView.transition(with: sdImageView, duration: seconds, options: options) { [weak self] in
         if let self = self {
           self.setImage(image, contentFit: self.contentFit)
         }

@@ -29,6 +29,10 @@ public final class ImageModule: Module {
         view.sources = sources
       }
 
+      Prop("sfSymbol") { (view, sources: String?) in
+        view.sfSymbol = sfSymbol
+      }
+
       Prop("placeholder") { (view, placeholders: [ImageSource]?) in
         view.placeholderSources = placeholders ?? []
       }
@@ -54,7 +58,7 @@ public final class ImageModule: Module {
       }
 
       Prop("tintColor") { (view, tintColor: UIColor?) in
-        view.imageTintColor = tintColor ?? .clear
+        view.imageTintColor = tintColor
       }
 
       Prop("priority") { (view, priority: ImagePriority?) in
