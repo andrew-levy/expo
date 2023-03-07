@@ -29,9 +29,9 @@ public class EXUpdatesBareUpdate: EXUpdatesUpdate {
 
     // use unsanitized id value from manifest
     let bundleKey = String(format: "bundle-%@", updateId)
-    let jsBundleAsset = EXUpdatesAsset(key: bundleKey, type: EXUpdatesBareEmbeddedBundleFileType)
+    let jsBundleAsset = EXUpdatesAsset(key: bundleKey, type: EXUpdatesEmbeddedAppLoader.EXUpdatesBareEmbeddedBundleFileType)
     jsBundleAsset.isLaunchAsset = true
-    jsBundleAsset.mainBundleFilename = EXUpdatesBareEmbeddedBundleFilename
+    jsBundleAsset.mainBundleFilename = EXUpdatesEmbeddedAppLoader.EXUpdatesBareEmbeddedBundleFilename
     processedAssets.append(jsBundleAsset)
 
     assets?.forEach { assetDict in
@@ -54,7 +54,7 @@ public class EXUpdatesBareUpdate: EXUpdatesUpdate {
       updateId: uuid,
       scopeKey: config.scopeKey.require("Must supply scopeKey in configuration"),
       commitTime: Date(timeIntervalSince1970: Double(commitTime) / 1000),
-      runtimeVersion: EXUpdatesUtils.getRuntimeVersion(with: config),
+      runtimeVersion: EXUpdatesUtils.getRuntimeVersion(withConfig: config),
       keep: true,
       status: EXUpdatesUpdateStatus.StatusEmbedded,
       isDevelopmentMode: false,

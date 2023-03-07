@@ -1,9 +1,6 @@
 //  Copyright © 2019 650 Industries. All rights reserved.
 
 #import <EXUpdates/EXUpdatesAppController+Internal.h>
-#import <EXUpdates/EXUpdatesErrorRecovery.h>
-#import <EXUpdates/EXUpdatesRemoteAppLoader.h>
-#import <EXUpdates/EXUpdatesUtils.h>
 #import <ExpoModulesCore/EXDefines.h>
 #import <React/RCTReloadCommand.h>
 
@@ -347,14 +344,14 @@ static NSString * const EXUpdatesErrorEventName = @"error";
            assetId:nil];
     [EXUpdatesUtils sendEventToBridge:_bridge withType:EXUpdatesNoUpdateAvailableEventName body:@{}];
   }
-  [_errorRecovery notifyNewRemoteLoadStatus:_remoteLoadStatus];
+  [_errorRecovery notifyWithNewRemoteLoadStatus:_remoteLoadStatus];
 }
 
 # pragma mark - EXUpdatesAppController+Internal
 
 - (BOOL)initializeUpdatesDirectoryWithError:(NSError ** _Nullable)error
 {
-  _updatesDirectory = [EXUpdatesUtils initializeUpdatesDirectoryWithError:error];
+  _updatesDirectory = [EXUpdatesUtils initializeUpdatesDirectoryAndReturnError:error];
   return _updatesDirectory != nil;
 }
 
@@ -437,18 +434,18 @@ static NSString * const EXUpdatesErrorEventName = @"error";
 
   _remoteLoadStatus = EXUpdatesRemoteLoadStatusLoading;
   EXUpdatesAppLoader *remoteAppLoader = [[EXUpdatesRemoteAppLoader alloc] initWithConfig:_config database:_database directory:_updatesDirectory launchedUpdate:self.launchedUpdate completionQueue:_controllerQueue];
-  [remoteAppLoader loadUpdateFromUrl:_config.updateUrl onManifest:^BOOL(EXUpdatesUpdate *update) {
+  [remoteAppLoader loadUpdateFromURL:_config.updateUrl onManifest:^BOOL(EXUpdatesUpdate * _Nonnull update) {
     return [self->_selectionPolicy shouldLoadNewUpdate:update withLaunchedUpdate:self.launchedUpdate filters:update.manifestFilters];
-  } asset:^(EXUpdatesAsset *asset, NSUInteger successfulAssetCount, NSUInteger failedAssetCount, NSUInteger totalAssetCount) {
+  } asset:^(EXUpdatesAsset * _Nonnull asset, NSInteger successfulAssetCount, NSInteger failedAssetCount, NSInteger totalAssetCount) {
     // do nothing for now
   } success:^(EXUpdatesUpdate * _Nullable update) {
     self->_remoteLoadStatus = update ? EXUpdatesRemoteLoadStatusNewUpdateLoaded : EXUpdatesRemoteLoadStatusIdle;
-    [self->_errorRecovery notifyNewRemoteLoadStatus:self->_remoteLoadStatus];
-  } error:^(NSError *error) {
+    [self->_errorRecovery notifyWithNewRemoteLoadStatus:self->_remoteLoadStatus];
+  } error:^(NSError * _Nonnull error) {
     [self->_logger error:[NSString stringWithFormat:@"EXUpdatesAppController loadRemoteUpdate error: %@", error.localizedDescription]
               code:EXUpdatesErrorCodeUpdateFailedToLoad];
     self->_remoteLoadStatus = EXUpdatesRemoteLoadStatusIdle;
-    [self->_errorRecovery notifyNewRemoteLoadStatus:self->_remoteLoadStatus];
+    [self->_errorRecovery notifyWithNewRemoteLoadStatus:self->_remoteLoadStatus];
   }];
 }
 
